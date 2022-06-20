@@ -1,7 +1,7 @@
 package internal
 
 import (
-	"github.com/dhalkin/html-to-pdf/internal/controllers"
+	"github.com/dhalkin/html-to-pdf/app/internal/controllers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
