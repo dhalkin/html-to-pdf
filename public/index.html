@@ -4,41 +4,55 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="/css/bootstrap.min.css" rel="stylesheet" />
-    <script src="/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="/js/jquery.min.js" type="text/javascript"></script>
-    <script src="https://cdn.tiny.cloud/1/ffbu9zchrnf1c3484hkke5tv29pcy2henb57qb0phqxqttsv/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
-    <script src="/js/tinymce-jquery.min.js" type="text/javascript"></script>
+
+    <script src="/js/tinymce.min.js"></script>
+    <script src="/js/vue.global.js"></script>
+    <script src="/js/tinymce-vue.min.js"></script>
+
     <title>Demo</title>
 </head>
 <body>
 
-<div class="container-sm" style="max-width: 890px">
+<div class="container-sm" style="max-width: 890px" id="app">
     <h1>Demo</h1>
    <div class="row">
-
-           <textarea id="tiny">&lt;p&gt;Encoded HTML content&lt;/p&gt;</textarea>
-
+        <editor
+            api-key="ffbu9zchrnf1c3484hkke5tv29pcy2henb57qb0phqxqttsv"
+            :disabled=false
+            :init= "{ height: 600, menubar: false, toolbar_mode: 'wrap', statusbar: false }"
+            model-events= ""
+            toolbar="blocks | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote fontfamily fontsize fontcolor | h1 h2 h5 hr | subscript superscript underline strikethrough | codesample emoticons print | removeformat"
+            plugins="advlist lists codesample emoticons"
+            initial-value="Once upon a time..." />
        </div>
 
    <div class="row pt-2">
-           <button type="button" class="btn btn-primary w-100">Get PDF</button>
-
-       </div>
+           <button @click="getContent" type="button" class="btn btn-primary w-100">Get PDF</button>
+   </div>
 </div>
 
-       <script>
-           $('textarea#tiny').tinymce({
-               height: 600,
-               menubar: false,
-               toolbar_mode: 'wrap',
-               toolbar: 'blocks | ' +
-                   'bold italic backcolor forecolor | alignleft aligncenter ' +
-                   'alignright alignjustify | bullist numlist outdent indent | ' +
-                   'blockquote fontfamily fontsize fontcolor | h1 h2 h5 hr | ' +
-                   'subscript superscript underline strikethrough | removeformat',
-               statusbar: false
-           });
-       </script>
+<script type="module">
+
+   const { createApp } = Vue
+   const app = createApp({
+       components: {
+           'editor': Editor
+       },
+       data() {
+           return {
+               message: 'Hello Vue from App.vue!'
+           }
+       },
+       methods:{
+           getContent(event){
+               alert('Hola, ' + this.name + '!')
+           }
+       }
+   })
+
+   app.mount('#app')
+
+</script>
 
 </body>
 </html>
