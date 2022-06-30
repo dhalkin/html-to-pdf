@@ -11,7 +11,6 @@ import (
 const APP_PORT = ":8080"
 
 func StartServer() {
-
 	e := getE()
 	if err := e.Start(APP_PORT); err != http.ErrServerClosed {
 		log.Fatal(err)
@@ -19,7 +18,6 @@ func StartServer() {
 }
 
 func getE() *echo.Echo {
-
 	e := echo.New()
 	e.HideBanner = false
 	e.Debug = true
@@ -29,7 +27,7 @@ func getE() *echo.Echo {
 	e.Use(middleware.BodyLimit("1M"))
 
 	// add middleware and routes
-	e.GET("/transfer", controllers.Transfer)
+	e.POST("/transfer-wkhtmltopdf", controllers.TransferWkhtmltopdf)
 
 	return e
 }

@@ -9,25 +9,28 @@
     <script src="/js/vue.global.js"></script>
     <script src="/js/tinymce-vue.min.js"></script>
 
-    <title>Demo</title>
+    <title>Demo html-pdf</title>
 </head>
 <body>
-
-<div class="container-sm" style="max-width: 890px" id="app">
-    <h1>Demo</h1>
+<div class="container-sm" style="max-width: 930px; padding: 0; margin-top: 10px;" id="app">
    <div class="row">
         <editor
             api-key="ffbu9zchrnf1c3484hkke5tv29pcy2henb57qb0phqxqttsv"
+            id="some-unique-uuid"
             :disabled=false
             :init= "{ height: 600, menubar: false, toolbar_mode: 'wrap', statusbar: false }"
-            model-events= ""
+            v-model="content"
             toolbar="blocks | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote fontfamily fontsize fontcolor | h1 h2 h5 hr | subscript superscript underline strikethrough | codesample emoticons print | removeformat"
-            plugins="advlist lists codesample emoticons"
-            initial-value="Once upon a time..." />
-       </div>
+            plugins="advlist lists codesample emoticons" />
+   </div >
 
    <div class="row pt-2">
-           <button @click="getContent" type="button" class="btn btn-primary w-100">Get PDF</button>
+       <div class="col">
+           <button @click="getPdfWkhtmltopdf" type="button" class="btn btn-primary w-100">Get PDF wkhtmltopdf</button>
+       </div>
+       <div class="col">
+           <button @click="" type="button" class="btn btn-secondary w-100">Get PDF ...</button>
+       </div>
    </div>
 </div>
 
@@ -40,19 +43,38 @@
        },
        data() {
            return {
-               message: 'Hello Vue from App.vue!'
+               content: '<h2>Hello Vue from app!</h2>'
            }
        },
-       methods:{
-           getContent(event){
-               alert('Hola, ' + this.name + '!')
+       methods: {
+           getPdfWkhtmltopdf() {
+               // need to send styles of body as complex html code
+               // prepare style by default tinymce editor body stile
+               let style = '<style>body{font-family:"Helvetica"; font-size:12pt; line-height:1.4;}</style>';
+               let complexBody = style + '<body>' + this.content + '</body>';
+
+               fetch('/api/transfer-wkhtmltopdf', {
+                   method: 'POST',
+                   body: complexBody
+               })
+               .then(response => {
+                   if (!response.ok) {
+                       throw new Error(response.statusText)
+                   }
+                   return response.blob()
+               })
+               .then(blob => {
+                   let file = window.URL.createObjectURL(blob);
+                   window.location.assign(file);
+               })
+               .catch(error => {
+                   alert("HTTP-Error: " + error.message)
+               })
            }
        }
    })
 
    app.mount('#app')
-
 </script>
-
 </body>
 </html>
