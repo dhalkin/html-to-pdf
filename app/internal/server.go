@@ -8,11 +8,11 @@ import (
 	"net/http"
 )
 
-const APP_PORT = ":8080"
+const appPort = ":8080"
 
 func StartServer() {
 	e := getE()
-	if err := e.Start(APP_PORT); err != http.ErrServerClosed {
+	if err := e.Start(appPort); err != http.ErrServerClosed {
 		log.Fatal(err)
 	}
 }
@@ -28,6 +28,7 @@ func getE() *echo.Echo {
 
 	// add middleware and routes
 	e.POST("/transfer-wkhtmltopdf", controllers.TransferWkhtmltopdf)
+	e.POST("/transfer-libreoffice", controllers.TransferLibreoffice)
 
 	return e
 }

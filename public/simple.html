@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="/css/bootstrap.min.css" rel="stylesheet" />
+
+    <script src="/js/vue.global.js"></script>
+
+    <title>Simple html-pdf</title>
+</head>
+<body>
+<div class="container-sm" style="width:230mm; padding: 0; margin-top: 10px;" id="app">
+    <div class="row pb-2">
+        <div class="col">
+            <button @click="getExampleOne" type="button" class="btn btn-secondary w-100">Load example 1</button>
+        </div>
+        <div class="col">
+            <button @click="getExampleTwo" type="button" class="btn btn-secondary w-100">Load example 2</button>
+        </div>
+        <div class="col">
+            <a href="/">Go to TinyMce</a>
+        </div>
+    </div>
+    <div class="row">
+        <textarea style="height: 600px;" v-model="rawHtml"></textarea>
+    </div >
+
+    <div class="row pt-2">
+        <div class="col">
+            <button @click="getPdfWkhtmltopdf" type="button" class="btn btn-primary w-100">Get PDF wkhtmltopdf</button>
+        </div>
+        <div class="col">
+            <button @click="getPdfLibreoffice" type="button" class="btn btn-success w-100">Get PDF libreoffice</button>
+        </div>
+        <div class="col">
+            <button @click="clearTinyMce" type="button" class="btn btn-secondary w-100">Clear</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+
+    const { createApp } = Vue
+    const app = createApp({
+        data() {
+            return {
+                rawHtml: '<p style="font-family: Arial;">Hello Vue from app!</p>'
+            }
+        },
+        methods: {
+            async getPdfWkhtmltopdf() {
+                const blob = await fetch('/api/transfer-wkhtmltopdf', {method: 'POST', body: this.rawHtml}).then(response => response.blob());
+                const file = window.URL.createObjectURL(blob);
+                window.location.assign(file);
+            },
+            async getPdfLibreoffice() {
+                const blob = await fetch('/api/transfer-libreoffice', {method: 'POST', body: this.rawHtml}).then(response => response.blob());
+                const file = window.URL.createObjectURL(blob);
+                window.location.assign(file);
+            },
+            async getExampleOne() {
+                const html = await fetch('/example3.html').then(response => response.text());
+                this.rawHtml = html;
+            },
+            async getExampleTwo() {
+                const html = await fetch('/example4.html').then(response => response.text());
+                this.rawHtml = html;
+            },
+            clearTinyMce() {
+                this.rawHtml = '';
+            }
+        }
+    })
+
+    app.mount('#app')
+</script>
+</body>
+</html>

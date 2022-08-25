@@ -12,7 +12,21 @@
     <title>Demo html-pdf</title>
 </head>
 <body>
-<div class="container-sm" style="max-width: 930px; padding: 0; margin-top: 10px;" id="app">
+<div class="container-sm" style="width:230mm; padding: 0; margin-top: 10px;" id="app">
+    <div class="row pb-2">
+        <div class="col">
+            <button @click="getExampleOne" type="button" class="btn btn-secondary w-100">Load example 1</button>
+        </div>
+        <div class="col">
+            <button @click="getExampleTwo" type="button" class="btn btn-secondary w-100">Load example 2</button>
+        </div>
+        <div class="col">
+            <button @click="getExampleTable" type="button" class="btn btn-secondary w-100">Load table example</button>
+        </div>
+        <div class="col">
+            <a href="/simple.html">Go to simple</a>
+        </div>
+    </div>
    <div class="row">
         <editor
             api-key="ffbu9zchrnf1c3484hkke5tv29pcy2henb57qb0phqxqttsv"
@@ -20,8 +34,8 @@
             :disabled=false
             :init= "{ height: 600, menubar: false, toolbar_mode: 'wrap', statusbar: false }"
             v-model="content"
-            toolbar="blocks | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote fontfamily fontsize fontcolor | h1 h2 h5 hr | subscript superscript underline strikethrough | codesample emoticons print | removeformat"
-            plugins="advlist lists codesample emoticons" />
+            toolbar="blocks | bold italic backcolor forecolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote fontfamily fontsize fontcolor | h1 h2 h5 hr | subscript superscript underline strikethrough | codesample | table | removeformat"
+            plugins="advlist lists codesample table" />
    </div >
 
    <div class="row pt-2">
@@ -29,7 +43,10 @@
            <button @click="getPdfWkhtmltopdf" type="button" class="btn btn-primary w-100">Get PDF wkhtmltopdf</button>
        </div>
        <div class="col">
-           <button @click="" type="button" class="btn btn-secondary w-100">Get PDF ...</button>
+           <button @click="getPdfLibreoffice" type="button" class="btn btn-success w-100">Get PDF libreoffice</button>
+       </div>
+       <div class="col">
+           <button @click="clearTinyMce" type="button" class="btn btn-secondary w-100">Clear</button>
        </div>
    </div>
 </div>
@@ -43,33 +60,50 @@
        },
        data() {
            return {
-               content: '<h2>Hello Vue from app!</h2>'
+               content: 'Hello Vue from app!'
            }
        },
        methods: {
-           getPdfWkhtmltopdf() {
-               // need to send styles of body as complex html code
-               // prepare style by default tinymce editor body stile
-               let style = '<style>body{font-family:"Helvetica"; font-size:12pt; line-height:1.4;}</style>';
-               let complexBody = style + '<body>' + this.content + '</body>';
+           async getComplexBody() {
+               const styleOne = await fetch('/js/skins/content/default/content.min.css').then(response => response.text());
+               const styleTwo = await fetch('/js/skins/ui/oxide/content.min.css').then(response => response.text());
+               const complexStyle = styleOne + ' ' + styleTwo;
 
-               fetch('/api/transfer-wkhtmltopdf', {
-                   method: 'POST',
-                   body: complexBody
-               })
-               .then(response => {
-                   if (!response.ok) {
-                       throw new Error(response.statusText)
-                   }
-                   return response.blob()
-               })
-               .then(blob => {
-                   let file = window.URL.createObjectURL(blob);
-                   window.location.assign(file);
-               })
-               .catch(error => {
-                   alert("HTTP-Error: " + error.message)
-               })
+               const complexBody = '<html><head>' +
+                   '<meta http-equiv="Content-Security-Policy" content="sandbox">' +
+                   '<meta name="viewport" content="width=device-width, initial-scale=1.0">' +
+                   '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head>' +
+                   '<style>' + complexStyle + '</style>' +
+                   '<body id="tinymce" class="mce-content-body">' + this.content + '</body></html>';
+
+              return  complexBody;
+           },
+           async getPdfWkhtmltopdf() {
+               const complexBody = await this.getComplexBody();
+               const blob = await fetch('/api/transfer-wkhtmltopdf', {method: 'POST', body: complexBody}).then(response => response.blob());
+               const file = window.URL.createObjectURL(blob);
+               window.location.assign(file);
+           },
+           async getPdfLibreoffice() {
+               const complexBody = await this.getComplexBody();
+               const blob = await fetch('/api/transfer-libreoffice', {method: 'POST', body: complexBody}).then(response => response.blob());
+               const file = window.URL.createObjectURL(blob);
+               window.location.assign(file);
+           },
+           async getExampleOne() {
+               const html = await fetch('/example1.html').then(response => response.text());
+               this.content = html;
+           },
+           async getExampleTwo() {
+               const html = await fetch('/example2.html').then(response => response.text());
+               this.content = html;
+           },
+           async getExampleTable() {
+               const html = await fetch('/example-table.html').then(response => response.text());
+               this.content = html;
+           },
+           clearTinyMce() {
+               this.content = '';
            }
        }
    })

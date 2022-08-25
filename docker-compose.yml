@@ -11,6 +11,6 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./public:/var/www
     ports:
-      - "89:80"
+      - "${APP_HTTP_PORT}:80"
     depends_on:
       - "jamato"
