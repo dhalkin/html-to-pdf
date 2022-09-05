@@ -1,6 +1,6 @@
 # html-to-pdf
 
-Is a simple web application for converting html to pdf
+This is a demo web application for converting html to pdf
 
 ### Install
 
